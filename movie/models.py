@@ -47,11 +47,3 @@ class Movie_Genre(models.Model):
 
     class Meta:
         db_table = 'movie_genre'
-
-
-
-
-
-
-
-
