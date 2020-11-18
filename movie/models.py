@@ -22,7 +22,7 @@ class Picture(models.Model):
 class Actor(models.Model):
     name           = models.CharField(max_length=200)
     proflie_image  = models.URLField(max_length=1000)
-    movie          = models.ManyToManyField('Movie', through='Movie_Actor')
+    movie          = models.ManyToManyField('Movie', through='MovieActor')
 
     class Meta:
         db_table = 'actors'
@@ -36,12 +36,12 @@ class MovieActor(models.Model):
 
 class Genre(models.Model):
     name = models.CharField(max_length=200)
-    movie = models.ManyToManyField('Movie', through='Movie_Genre')
+    movie = models.ManyToManyField('Movie', through='MovieGenre')
 
     class Meta:
         db_table = 'genres'
 
-class Movie_Genre(models.Model):
+class MovieGenre(models.Model):
     movie = models.ForeignKey('Movie', on_delete=models.CASCADE)
     genre = models.ForeignKey('Genre', on_delete=models.CASCADE)
 
