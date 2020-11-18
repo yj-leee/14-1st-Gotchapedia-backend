@@ -16,5 +16,5 @@ class UserLog(models.Model):
     created_at  = models.DateField(auto_now_add=True)
 
     class Meta:
-        db_table = 'user_log'
+        db_table = 'user_logs'
 
