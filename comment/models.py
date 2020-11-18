@@ -5,7 +5,7 @@ class Comment(models.Model):
     movie    = models.ForeignKey('movie.Movie', on_delete=models.CASCADE)
     comment  = models.ForeignKey(
         'Comment',
-        on_delete=models.CASCADE,
+        on_delete    = models.CASCADE,
         related_name = 'main_comment'
     ) 
     class Meta:
@@ -13,7 +13,7 @@ class Comment(models.Model):
 
 class Like(models.Model):
     user     = models.ForeignKey('users.User', on_delete=models.CASCADE)
-    commnet  = models.ForeignKey('comment.Comment', on_delete=models.CASCADE)
+    comment  = models.ForeignKey('comment.Comment', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'likes'
