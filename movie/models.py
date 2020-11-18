@@ -13,8 +13,8 @@ class Movie(models.Model):
         db_table = 'movies'
 
 class Picture(models.Model):
-    movie = models.ForeignKey('Movie', on_delete=models.CASCADE)
-    url = models.URLField(max_length=1000)
+    movie  = models.ForeignKey('Movie', on_delete=models.CASCADE)
+    url    = models.URLField(max_length=1000)
 
     class Meta:
         db_table = 'pictures'
@@ -27,7 +27,7 @@ class Actor(models.Model):
     class Meta:
         db_table = 'actors'
 
-class Movie_Actor(models.Model):
+class MovieActor(models.Model):
     movie = models.ForeignKey('Movie', on_delete=models.CASCADE)
     actor = models.ForeignKey('Actor', on_delete=models.CASCADE)
 

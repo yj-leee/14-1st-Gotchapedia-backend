@@ -7,7 +7,7 @@ class Comment(models.Model):
         'Comment',
         on_delete    = models.CASCADE,
         related_name = 'main_comment'
-    ) 
+    )
     class Meta:
         db_table = 'comments'
 
