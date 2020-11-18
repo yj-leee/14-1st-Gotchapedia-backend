@@ -32,7 +32,7 @@ class MovieActor(models.Model):
     actor = models.ForeignKey('Actor', on_delete=models.CASCADE)
 
     class Meta:
-        db_table = 'movie_actor'
+        db_table = 'movie_actors'
 
 class Genre(models.Model):
     name = models.CharField(max_length=200)
