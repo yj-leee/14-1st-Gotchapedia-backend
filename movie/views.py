@@ -4,31 +4,30 @@ from django.views import View
 from django.http import JsonResponse
 
 from .models import Movie
-from users.models import User
+from analysis.models import Star
 
 class UserFavoriteView(View):
-    def post(self, request):
-        #유저가 좋아하는(별점) TOP 10의 영화 정보
-        NECESSERY_KEYS = ('name',)
-        data = json.loads(request.body)
+    def get(self, request):
+        account_id = request.GET.get('id')
+        list_range = request.GET.get('range')
 
-        if list(filter(lambda x: x not in data,NECESSERY_KEYS)):
+        if not account_id or not list_range:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
 
         try:
-            user   = User.objects.get(name=data['name'])
-            stars  = user.star_set.order_by('-point').all()[:10]
+            stars  = Star.objects.filter(user_id=int(account_id)).order_by('-point')[:int(list_range)]
             movies = [star.movie for star in stars]
+
             content = {
                 'message': 'SUCCESS',
                 'data': [{
-                            'movieimg': movie.main_image,
-                            'movietitle': movie.name,
-                            'movierate': f'{stars[i].point}',
+                            'imageURL': movie.main_image,
+                            'title': movie.name,
+                            'rate': f'{stars[i].point}',
                             'rank': i+1,
-                            'moviedate': f'{movie.opening_at.year} . {movie.country}'
+                            'date': f'{movie.opening_at.year} . {movie.country}'
                         } for i, movie in enumerate(movies)]
             }
             return JsonResponse(content, status=200)
-        except User.DoesNotExist:
-            return JsonResponse({'message': 'NOT_EXIST_USER'}, status=400)
+        except ValueError:
+            return JsonResponse({'message': 'INSTANCE_IS_NOT_NUMBER'}, status=400)
