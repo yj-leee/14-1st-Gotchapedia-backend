@@ -1,29 +1,37 @@
 import json
 
-from django.views    import View
-from django.http     import JsonResponse #
-from .models         import *
+from django.views import View
+from django.http import JsonResponse
 
-from user.models     import User
-from anaylsis.models import *
-from user.utils      import login_required
+from .models import (
+    Movie,
+    Picture,
+    Actor,
+    MovieActor,
+    Genre,
+    MovieGenre
+)
+
+from users.models import User
+from analysis.models import Star
+
 
 class CreateStarView(View):
-    #<-- login decorator -->
-    def post(self,reqest):
-        data = json.loads(reqest.body)
+#    <-- login decorator -->
+    def post(self, request):
+        data = json.loads(request.body)
 
         try:
             star = Star.objects.create(
-                point    = data["starPoint"],
-                user_id  = reqest.user,
-                movie_id = data["movieId"]
+                user_id = request.user,
+                movie_id = data["movieId"],
+                point = data["starPoint"]
             )
 
             feedback = [
-                "message"   : "SUCCESS",
-                "starPoint" : star.point
-            )]
+                {"message":"SUCCESS"},
+                {"starPoint":star.point}
+            ]
             return JsonResponse(feedback, status = 201)
 
         except KeyError:
@@ -31,52 +39,49 @@ class CreateStarView(View):
 
 
 class ReadStarView(View):
-    #<-- login decorator -->
-    def get(self,reqest):
-        data = json.loads(reqest.body)
+#    <-- login decorator -->
+    def get(self, request):
+        data = request.GET.get('movieId')
 
-        try:
-            star     = star.objects.filter(
-            movie_id = data["movieId"],
-            user_id  = reqest.user
-            )
+        star = Star.objects.filter(
+            user_id = request.user,
+            movie_id = data["movieId"]
+        )
 
-            if star.exists():
-                star       = star.first()
-                star_point = star.point
-                return JsonResponse({"message":"NOT_FOUND"}, status = 404)
+        if star.exists():
+            star = star.first()
+            star_point = star.point
+        else:
+            return JsonResponse({"message":"NOT_FOUND"}, status =404)
 
-            feedback = [
-                "message"   : "SUCCESS",
-                "starPoint" : star_point
-            )]
-            return JsonResponse(feedback, status = 200)
-
-        except KeyError:
-            return JsonResponse({"message":"KEY_ERROR"}, status = 400)
+        feedback = [
+            {"message":"SUCCESS"},
+            {"starPoint":star_point}
+        ]
+        return JsonResponse(feedback, status = 200)
 
 
 class UpdateStarView(View):
-    #<-- login decorator -->
-    def post(self,reqest):
-        data = json.loads(reqest.body)
+#    <-- login decorator -->
+    def post(self, request):
+        data = json.loads(request.body)
 
         try:
-            star     = star.objects.filter(
-            movie_id = data["movieId"]
-            user_id  = request.user
+            star = star.objects.filter(
+                user_id = request.user,
+                movie_id = data["movieId"]
             )
 
             if star.exists():
-                star.update(point = date["starPoint"])
+                star.update(point = data["starPoint"])
                 update_star = star.point
             else:
                 return JsonResponse({"message":"NOT_FOUND"}, status = 404)
 
             feedback = [
-                "message"   : "SUCCESS",
-                "starPoint" : update_star
-            )]
+                {"message":"SUCCESS"},
+                {"starPoint":update_star}
+            ]
             return JsonResponse(feedback, status = 200)
 
         except KeyError:
@@ -84,24 +89,21 @@ class UpdateStarView(View):
 
 
 class DeleteStarView(View):
-    #<-- login decorator -->
-    def delete(self,reqest):
-        data = json.loads(reqest.body)
+#    <-- login decorator -->
+    def delete(self, request):
+        data = request.GET.get(movieId)
 
-        try:
-            star = star.objects.filter(
+        star = star.objects.filter(
+            user_id = request.user,
             movie_id = data["movieId"]
-            user_id  = request.user
-            )
+        )
 
-            if star.exists():
-                star.delete()
-                return JsonResponse({"message":"NOT_FOUND"}, status = 404)
+        if star.exists():
+            star.delete()
+        else:
+            return JsonResponse({"message":"NOT_FOUND"}, status = 404)
 
-            feedback = [
-                "message":"SUCCESS"
-            ]
-            return JsonResponse(feedback, status = 200)
-
-        except KeyError:
-            return JsonResponse({"message":"KEY_ERROR"}, status = 400)
+        feedback = [
+            {"message":"SUCCESS"}
+        ]
+        return JsonResponse (feedback, status = 200)
