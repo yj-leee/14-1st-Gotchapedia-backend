@@ -17,13 +17,13 @@ class UserView(View):
             email_check = re.compile('^[a-zA-Z0-9-_]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+$')
 
             if not re.match(email_check, data['email']):
-                return JsonResponse({'message' : 'EMAIL_INVALID'}, status=400)
+                return JsonResponse({'message' : 'INVALID_EMAIL'}, status=400)
 
             if len(data['password']) < 6:
-                return JsonResponse({'message' : 'PASSWORD_INVALID'}, status=400)
+                return JsonResponse({'message' : 'INVALID_PASSWORD'}, status=400)
 
             if User.objects.filter(email=data['email']).exists():
-                return JsonResponse({'message' : 'DUPLIRCATION_EMAIL'}, status=400)
+                return JsonResponse({'message' : 'EXIST_EMAIL'}, status=400)
 
             password         = data['password'].encode('utf-8')
             hashed_password  = bcrypt.hashpw(password, bcrypt.gensalt())
