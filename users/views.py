@@ -26,8 +26,7 @@ class UserView(View):
                 return JsonResponse({'message' : 'EXIST_EMAIL'}, status=400)
 
             password         = data['password'].encode('utf-8')
-            hashed_password  = bcrypt.hashpw(password, bcrypt.gensalt())
-            decode_password  = hashed_password.decode('utf-8')
+            hashed_password  = bcrypt.hashpw(password, bcrypt.gensalt()).decode('utf-8')
 
             User.objects.create(
                 name      = data['name'],
