@@ -51,17 +51,17 @@ class ReadStarView(View):
             movie_id = int(movie)
         )
 
+        star_list = []
         if star.exists():
-            star       = star.first()
-            star_point = star.point
+            star      = star.first()
+            star_list = star.point
         else:
-            return JsonResponse({"message": "NOT_FOUND"}, status=404)
+           star_list = []
 
         feedback = {
             "message"   : "SUCCESS",
             "starPoint" : star_point
         }
-
         return JsonResponse(feedback, status=200)
 
 
@@ -112,5 +112,7 @@ class DeleteStarView(View):
         else:
             return JsonResponse({"message": "NOT_FOUND"}, status=404)
 
-        feedback = {"message": "SUCCESS"}
+        feedback = {
+            "message": "SUCCESS"
+        }
         return JsonResponse (feedback, status=200)
