@@ -1,18 +1,18 @@
 import json
 
-from django.views import View
-from django.http import JsonResponse
+from django.views    import View
+from django.http     import JsonResponse
 
-from .models import (
-    Movie,
-    Picture,
-    Actor,
-    MovieActor,
-    Genre,
-    MovieGenre
+from .models         import (
+Movie,
+Picture,
+Actor,
+MovieActor,
+Genre,
+MovieGenre
 )
 
-from users.models import User
+from users.models    import User
 from analysis.models import Star
 
 
