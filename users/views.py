@@ -19,7 +19,7 @@ class UserView(View):
                 return JsonResponse({'message' : 'EMAIL_ERROR'}, status=400)
 
             if len(data['password']) < 6:
-                return JsonREsponse({'message' : 'PASSWORD_ERROR'}, status=400)
+                return JsonResponse({'message' : 'PASSWORD_ERROR'}, status=400)
 
             if User.objects.filter(email=data['email']).exists():
                 return JsonResponse({'message' : 'EMAIL_ERROR'}, status=400)
@@ -46,6 +46,7 @@ class LoginView(View):
 
             if User.objects.filter(email=data['email']).exists():
                 user = User.objects.get(email=data['email'])
+            return JsonResponse({'message' : 'EMAIL_ERROR'}, status=400)
 
             if bcrypt.checkpw(data['password'].encode('utf-8'),user.password.encode('utf-8')):
                 SECRET        = settings.SECRET_KEY
