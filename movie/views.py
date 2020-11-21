@@ -22,9 +22,6 @@ class MovieInfoView(View):
     #<-- login decorator -->
     def get(self, request, movieId):
 
-        if movieId not in request.GET:
-            return JsonResponse({"message":"KEY_ERROR"}, status=400)
-
         movie_info       = Movie.objects.filter(id=movieId)
         movie_genre      = MovieGenre.objects.filter(movie_id=movieId)
         movie_staff      = MovieStaffPosition.objects.filter(movie_id=movieId)
@@ -47,9 +44,9 @@ class MovieInfoView(View):
         staff_list = []
         if movie_staff.exists():
             staff_list = [{
-                "staffName": staff.staff.name,
-                "staffImage": staff.staff.proflie_image,
-                "staffPosition": staff.position.name
+                "name": staff.staff.name,
+                "image": staff.staff.proflie_image,
+                "position": staff.position.name
             }for staff in movie_staff]
         else:
             staff_list = []
@@ -57,7 +54,7 @@ class MovieInfoView(View):
         sub_image = []
         if movie_sub_image.exists():
             sub_image = [{
-                "image_url": image.url
+                "url": image.url
             }for image in movie_sub_image]
         else:
             sub_image = []
@@ -74,4 +71,4 @@ class MovieInfoView(View):
                 "staff"       : staff_list,
                 "subImage"    : sub_image
         }
-        return JsonResponse({"data":feedback, status=200)
+        return JsonResponse({"data":feedback}, status=200)
