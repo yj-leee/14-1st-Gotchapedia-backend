@@ -12,7 +12,9 @@ class FavoriteView(View):
     def get(self, request):
         account_id = request.user
         category   = request.GET.get('category', 'genre') # '장르(genre)' 또는 '국가(country)'
+
         results = {}
+        stars = []
 
         if category == 'genre':
             stars = Star.objects.select_related('movie').prefetch_related('movie__genre_set').filter(user_id=account_id)
@@ -34,6 +36,8 @@ class FavoriteView(View):
             result['score'] = int(result['score'] / result['count'] * 20)
 
         content = {
+            'wholeCount': len(stars),
+            'watchingTime' : sum([star.movie.show_time for star in stars]),
             'data': sorted([{
                         'label': key,
                         'score': value['score'],
