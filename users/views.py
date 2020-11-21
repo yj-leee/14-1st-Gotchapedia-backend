@@ -50,6 +50,7 @@ class LoginView(View):
 
             if User.objects.filter(email=data['email']).exists():
                 user = User.objects.get(email=data['email'])
+            return JsonResponse({'message' : 'EMAIL_ERROR'}, status=200)
 
             if bcrypt.checkpw(data['password'].encode('utf-8'),user.password.encode('utf-8')):
                 SECRET        = settings.SECRET_KEY
