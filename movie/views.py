@@ -16,64 +16,52 @@ from users.models    import User
 from analysis.models import Star
 
 
-class CreateStarView(View):
+class StarView(View):
 #    <-- login decorator -->
-    def post(self, request):
+    def post(self, request, movieId):
         data = json.loads(request.body)
 
         try:
             star = Star.objects.create(
                 user_id  = request.user,
-                movie_id = data["movieId"],
+                movie_id = movieId,
                 point    = data["starPoint"]
             )
 
             feedback = {
-                "message"   : "SUCCESS",
-                "starPoint" : star.point
+                "starPoint"    : star.point
             }
             return JsonResponse(feedback, status=201)
 
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
 
-
-class ReadStarView(View):
-#    <-- login decorator -->
-    def get(self, request):
-        movie = request.GET.get('movieId')
-
-        if 'movieId' not in request.GET:
-            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+    def get(self, request, movieId):
 
         star = Star.objects.filter(
             user_id  = request.user,
-            movie_id = int(movie)
+            movie_id = movieId
         )
 
-        star_list = []
         if star.exists():
-            star      = star.first()
-            star_list = star.point
+            star       = star.first()
+            star_point = star.point
         else:
-           star_list = []
+            return JsonResponse({"message": "NOT_FOUND"}, status=404)
 
         feedback = {
-            "message"   : "SUCCESS",
             "starPoint" : star_point
         }
         return JsonResponse(feedback, status=200)
 
-
-class UpdateStarView(View):
 #    <-- login decorator -->
-    def post(self, request):
+    def patch(self, request, movieId):
         data = json.loads(request.body)
 
         try:
             star = Star.objects.filter(
                 user_id  = request.user,
-                movie_id = data["movieId"]
+                movie_id = movieId
             )
 
             if star.exists():
@@ -85,26 +73,19 @@ class UpdateStarView(View):
                 return JsonResponse({"message": "NOT_FOUND"}, status=404)
 
             feedback = {
-                "message"   : "SUCCESS",
-                "starPoint" : update_star
+                "starPoint"    : update_star
             }
             return JsonResponse(feedback, status=200)
 
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
 
-
-class DeleteStarView(View):
 #    <-- login decorator -->
-    def delete(self, request):
-        movie = request.GET.get('movieId')
-
-        if 'movieId' not in request.GET:
-            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+    def delete(self, request, movieId):
 
         star = Star.objects.filter(
             user_id  = request.user,
-            movie_id = int(movie)
+            movie_id = movieId
         )
 
         if star.exists():
