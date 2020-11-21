@@ -107,4 +107,4 @@ class StarView(View):
         feedback = {
             "message": "SUCCESS"
         }
-        return JsonResponse (feedback, status=200)
+        return JsonResponse (feedback, status=204)
