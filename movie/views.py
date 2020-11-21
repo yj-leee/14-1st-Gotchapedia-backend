@@ -18,18 +18,17 @@ from analysis.models import (
     Interest
 )
 
-class ReadMovieInfoView(View):
+class MovieInfoView(View):
     #<-- login decorator -->
-    def get(self, request):
-        movie  = request.GET.get('movieId')
+    def get(self, request, movieId):
 
-        if 'movieId' not in request.GET:
+        if movieId not in request.GET:
             return JsonResponse({"message":"KEY_ERROR"}, status=400)
 
-        movie_info       = Movie.objects.filter(id=int(movie))
-        movie_genre      = MovieGenre.objects.filter(movie_id=int(movie))
-        movie_staff      = MovieStaffPosition.objects.filter(movie_id=int(movie))
-        movie_sub_image  = Picture.objects.filter(movie_id=int(movie))
+        movie_info       = Movie.objects.filter(id=movieId)
+        movie_genre      = MovieGenre.objects.filter(movie_id=movieId)
+        movie_staff      = MovieStaffPosition.objects.filter(movie_id=movieId)
+        movie_sub_image  = Picture.objects.filter(movie_id=movieId)
 
         if movie_info.exists():
             movie =  movie_info.first()
@@ -64,15 +63,15 @@ class ReadMovieInfoView(View):
             sub_image = []
 
         feedback = {
-                "movieId"          : movie.pk,
-                "movieName"        : movie.name,
-                "movieContry"      : movie.contry,
-                "movieDescription" : movie.description,
-                "movieMainImage"   : movie.main_image,
-                "movieOpenDate"    : movie.opening_at.year,
-                "movieShowTime"    : movie.show_time,
-                "movieGenre"       : genre_list,
-                "moviestaff"       : staff_list,
-                "movieSubImage"    : sub_image
+                "id"          : movie.pk,
+                "name"        : movie.name,
+                "contry"      : movie.contry,
+                "description" : movie.description,
+                "mainImage"   : movie.main_image,
+                "openDate"    : movie.opening_at.year,
+                "showTime"    : movie.show_time,
+                "genre"       : genre_list,
+                "staff"       : staff_list,
+                "subImage"    : sub_image
         }
-        return JsonResponse(feedback, status=200)
+        return JsonResponse({"data":feedback, status=200)

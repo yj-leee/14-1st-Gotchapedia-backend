@@ -1,6 +1,6 @@
 from django.urls import path
-from .views      import ReadMovieInfoView
+from .views      import MovieInfoView
 
 urlpatterns= [
-    path('info/', ReadMovieInfoView.as_view())
+    path('<int:movieId>', MovieInfoView.as_view())
 ]
