@@ -17,11 +17,12 @@ class UserFavoriteView(View):
         try:
             rank_data = {
                 'data': [{
-                            'imageURL': star.movie.main_image,
-                            'title': star.movie.name,
-                            'rate': star.point,
-                            'date': f'{star.movie.opening_at.year} . {star.movie.country}'
-                 } for star in Star.objects.filter(user_id=int(account_id)).order_by('-point')[:int(list_range)]]
+                    'movieId': star.movie.id,
+                    'imageURL': star.movie.main_image,
+                    'title': star.movie.name,
+                    'rate': star.point,
+                    'date': f'{star.movie.opening_at.year} . {star.movie.country}'
+                 } for star in Star.objects.select_related('movie').filter(user_id=int(account_id)).order_by('-point')[:int(list_range)]]
             }#select related 써서 데이터 베이스 호출 줄일 것!!!!! 
             return JsonResponse(rank_data, status=200)
         except ValueError:
