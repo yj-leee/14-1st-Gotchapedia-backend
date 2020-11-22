@@ -22,6 +22,9 @@ class StarView(View):
             if star_check.exists():
                 return JsonResponse({"message":"ALREADY_EXISTS"}, status=400)
 
+            if data["starPoint"]*2 %1 != 0:
+                return JsonResponse({"message":"VALUE_ERROR"}, status=400)
+
             star = Star.objects.create(
                 user_id  = request.user,
                 movie_id = movieId,
@@ -67,9 +70,8 @@ class StarView(View):
             if not star.exists():
                 return JsonResponse({"message": "NOT_FOUND"}, status=404)
 
-            star = star.first()
-            if not star.point >= 0.5:
-                return JsonResponse({"message":"METHOD_ALLOWED"}, status=400)
+            if data["starPoint"]*2 %1 != 0:
+                return JsonResponse({"message":"VALUE_ERROR"}, status=400)
 
             star        = star.first()
             star.point  = data["starPoint"]
