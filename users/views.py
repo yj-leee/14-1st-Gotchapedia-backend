@@ -31,7 +31,7 @@ class UserView(View):
             User.objects.create(
                 name      = data['name'],
                 email     = data['email'],
-                password  = decode_password)
+                password  = hashed_password)
             return JsonResponse({'message' : 'SUCCESS'}, status=200)
 
         except KeyError:
@@ -48,16 +48,16 @@ class LoginView(View):
             if 'email' not in data or 'password' not in data:
                 return JsonResponse({'message' : 'KEY_ERROR'}, status=400)
 
-            if User.objects.filter(email=data['email']).exists():
-                user = User.objects.get(email=data['email'])
-            return JsonResponse({'message' : 'EMAIL_ERROR'}, status=200)
+            if not User.objects.filter(email=data['email']).exists():
+                return JsonResponse({'message' : 'EMAIL_ERROR'}, status=400)
+            user = User.objects.get(email=data['email'])
 
-            if bcrypt.checkpw(data['password'].encode('utf-8'),user.password.encode('utf-8')):
-                SECRET        = settings.SECRET_KEY
-                access_token  = jwt.encode({'id':user.id},SECRET, algorithm='HS256')
-                access_token  = access_token.decode('utf-8')
-                return JsonResponse({'token':access_token}, status=200)
-            return JsonResponse({'message' : 'WRONG_PASSWORD'}, status=400)
+            if not bcrypt.checkpw(data['password'].encode('utf-8'),user.password.encode('utf-8')):
+                return JsonResponse({'message' : 'WRONG_PASSWORD'}, status=400)
+            SECRET        = settings.SECRET_KEY
+            access_token  = jwt.encode({'id':user.id},SECRET, algorithm='HS256')
+            access_token  = access_token.decode('utf-8')
+            return JsonResponse({'token':access_token}, status=200)
 
         except (AttributeError, TypeError):
             return JsonResponse({'message' : 'ALL_KEY_TYPE_MUST_BE_STRING'}, status=400)
