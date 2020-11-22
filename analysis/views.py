@@ -19,10 +19,11 @@ class FavoriteView(View):
         if category == 'genre':
             stars = Star.objects.select_related('movie').prefetch_related('movie__genre_set').filter(user_id=account_id)
             for star in stars:
-                if not star.movie.genre_set.name in results:
-                    results[star.movie.genre_set.name] = {'count': 0, 'score': 0}
-                results[star.movie.genre_set.name]['count'] += 1
-                results[star.movie.genre_set.name]['score'] += star.point
+                for genre in star.movie.genre_set.all():
+                    if not genre.name in results:
+                        results[genre.name] = {'count': 0, 'score': 0}
+                    results[genre.name]['count'] += 1
+                    results[genre.name]['score'] += star.point
 
         if category == 'country':
             stars = Star.objects.select_related('movie').filter(user_id=account_id)
