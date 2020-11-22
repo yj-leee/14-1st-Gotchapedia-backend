@@ -30,7 +30,7 @@ class MovieDetailView(View):
 
         feedback = {
                 "name"        : movie.name,
-                "contry"      : movie.contry,
+                "country"      : movie.country,
                 "description" : movie.description,
                 "openDate"    : movie.opening_at.year,
                 "showTime"    : movie.show_time,
