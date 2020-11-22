@@ -36,7 +36,7 @@ class MovieInfoView(View):
         if movie_genre.exists():
             gnere = movie_genre.first()
             genre_list = [{
-                "name":gnere.genre.name
+                "name": gnere.genre.name
             } for ganre_name in movie_genre]
         else:
             genre_list = []
@@ -62,7 +62,7 @@ class MovieInfoView(View):
         feedback = {
                 "id"          : movie.pk,
                 "name"        : movie.name,
-                "contry"      : movie.contry,
+                "country"     : movie.country,
                 "description" : movie.description,
                 "mainImage"   : movie.main_image,
                 "openDate"    : movie.opening_at.year,
