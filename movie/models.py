@@ -3,7 +3,7 @@ from django.db import models
 
 class Movie(models.Model):
     name         = models.CharField(max_length=200)
-    contry       = models.CharField(max_length=200)
+    country       = models.CharField(max_length=200)
     main_image   = models.URLField(max_length=1000)
     description  = models.TextField(null=True)
     opening_at   = models.DateField()
