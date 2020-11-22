@@ -9,12 +9,19 @@ from analysis.models import Star
 class UserFavoriteView(View):
     def get(self, request):
         account_id = request.GET.get('id')
-        list_range = request.GET.get('range', 10)
+        list_range = request.GET.get('range')
 
         if not account_id:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
 
         try:
+            stars = Star.objects.select_related('movie').filter(user_id=int(account_id)).order_by('-point').all()
+            
+            if list_range:
+                range = min(stars.count(),int(list_range))
+            else:
+                range = stars.count()
+
             rank_data = {
                 'data': [{
                     'movieId': star.movie.id,
@@ -22,8 +29,8 @@ class UserFavoriteView(View):
                     'title': star.movie.name,
                     'rate': star.point,
                     'date': f'{star.movie.opening_at.year} . {star.movie.country}'
-                 } for star in Star.objects.select_related('movie').filter(user_id=int(account_id)).order_by('-point')[:int(list_range)]]
-            }#select related 써서 데이터 베이스 호출 줄일 것!!!!! 
+                 } for star in stars[:range]]
+            }
             return JsonResponse(rank_data, status=200)
         except ValueError:
             return JsonResponse({'message': 'INSTANCE_IS_NOT_NUMBER'}, status=400)
