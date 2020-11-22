@@ -21,10 +21,9 @@ class MovieDetailView(View):
 
         genre_list = []
         if movie_genre.exists():
-            gnere = movie_genre.first()
             genre_list = [{
-                "name": gnere.genre.name
-            } for ganre_name in movie_genre]
+                "name": genre.genre.name
+            } for genre in movie_genre]
         else:
             genre_list = []
 
