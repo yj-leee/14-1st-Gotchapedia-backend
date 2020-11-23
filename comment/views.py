@@ -14,13 +14,13 @@ class CommentLikeView(View):
         data = json.loads(request.body)
 
         try:
-            target = Comment.objects.filter(id=data["commentId"])
+            comment = Comment.objects.filter(id=data["commentId"])
             like_check = Like.objects.filter(
                 user_id    = request.user,
                 comment_id = data["commentId"]
             )
 
-            if not target.exists():
+            if not comment.exists():
                 return JsonResponse({"message": "NOT_FOUND"}, status=404)
             if like_check.exists():
                 return JsonResponse({"message": "ALREADY_EXISTS"}, status=404)
@@ -40,10 +40,13 @@ class CommentLikeView(View):
 
     @login_decorator
     def delete(self, request, comment_id):
-        comment = Comment.objects.filter(id = comment_id)
+        like = Like.objects.filter(
+            user_id    = request.user,
+            comment_id = comment_id
+        )
 
-        if comment.exists():
-            comment.delete()
+        if like.exists():
+            like.delete()
         else:
             return JsonResponse({"message": "NOT_FOUND"}, status=404)
 
