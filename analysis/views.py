@@ -40,6 +40,8 @@ class StarView(View):
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
 
+
+class StarDetailView(View):
     @login_decorator
     def get(self, request, movie_id):
         star = Star.objects.filter(
