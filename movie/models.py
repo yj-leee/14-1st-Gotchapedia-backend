@@ -42,8 +42,8 @@ class MovieStaffPosition(models.Model):
         db_table = 'movie_staff_positions'
 
 class Genre(models.Model):
-    name = models.CharField(max_length=200)
-    movie = models.ManyToManyField('Movie', through='MovieGenre')
+    name   = models.CharField(max_length=200)
+    movies = models.ManyToManyField('Movie', through='MovieGenre')
 
     class Meta:
         db_table = 'genres'
@@ -53,4 +53,4 @@ class MovieGenre(models.Model):
     genre = models.ForeignKey('Genre', on_delete=models.CASCADE)
 
     class Meta:
-        db_table = 'movie_genre'
+        db_table = 'movie_genres'
