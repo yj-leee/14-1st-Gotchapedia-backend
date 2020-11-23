@@ -14,10 +14,17 @@ class CommentView(View):
         data = json.loads(request.body)
 
         try:
-            movie_check = Movie.objects.filter(id=data["movieId"])
+            movie_check = Movie.objects.filter(id = data["movieId"])
+            star_check  = Star.objects.filter(
+                user_id  = request.user,
+                movie_id = data["movieId"]
+            )
 
             if not movie_check.exists():
-                return JsonResponse({"message": "NOT_FOUND"}, status=400)
+                return JsonResponse({"message": "NO_MOVIE"}, status=400)
+
+            if not star_check.exists():
+                return JsonResponse({"message":" NO_PERMISSION"}, status=403)
 
             comment_check = Comment.objects.filter(
                 user_id  = request.user,
@@ -49,17 +56,17 @@ class CommentView(View):
         movie_check = Movie.objects.filter(id=movie_id)
 
         if not movie_check.exists():
-            return JsonResponse({"message": "NOT_FOUND"}, status=400)
+            return JsonResponse({"message": "NO_MOVIE"}, status=400)
 
-        target = Comment.objects.filter(
+        commit = Comment.objects.filter(
             user_id  = request.user,
             movie_id = movie_id
         )
 
         comment = ''
-        if target.exists():
-            target  = target.first()
-            comment = target.content
+        if comment.exists():
+            comment = comment.first()
+            comment = comment.content
         else:
             comment = ''
 
@@ -76,7 +83,7 @@ class CommentView(View):
             movie_check = Movie.objects.filter(id=movie_id)
 
             if not movie_check.exists():
-                return JsonResponse({"message": "NOT_FOUND"}, status=400)
+                return JsonResponse({"message": "NO_MOVIE"}, status=400)
 
             comment = Comment.objects.filter(
                 user_id  = request.user,
@@ -104,7 +111,7 @@ class CommentView(View):
         movie_check = Movie.objects.filter(id=movie_id)
 
         if not movie_check.exists():
-            return JsonResponse({"message": "NOT_FOUND"}, status=400)
+            return JsonResponse({"message": "NO_MOVIE"}, status=400)
 
         comment = Comment.objects.filter(
             user_id  = request.user,
