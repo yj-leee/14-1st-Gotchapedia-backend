@@ -6,7 +6,8 @@ class Comment(models.Model):
     comment  = models.ForeignKey(
         'Comment',
         on_delete    = models.CASCADE,
-        related_name = 'main_comment'
+        related_name = 'main_comment',
+        null         = True
     )
     content = models.TextField(null=True)
 
