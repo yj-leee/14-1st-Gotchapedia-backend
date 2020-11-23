@@ -12,7 +12,7 @@ from users.utils import login_decorator
 from movie.models import Movie
 from .models import Star
 
-class StarratingView(View):
+class StarRatingView(View):
     @login_decorator
     def get(self, request):
         if request.GET.get('id', None) != None:
