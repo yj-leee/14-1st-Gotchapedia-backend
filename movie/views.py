@@ -32,31 +32,15 @@ class MovieInfoView(View):
         else:
             return JsonResponse({"message":"NO_MOVIE"}, status=404)
 
-        genre_list = []
-        if movie_genre.exists():
-            genre_list = [{
-                "name": gnere.genre.name
-            } for genre in movie_genre]
-        else:
-            genre_list = []
+        genre_list = [{"name": gnere.genre.name} for genre in movie_genre if movie_genre.exists()]
 
-        staff_list = []
-        if movie_staff.exists():
-            staff_list = [{
-                "name": staff.staff.name,
-                "image": staff.staff.proflie_image,
-                "position": staff.position.name
-            }for staff in movie_staff]
-        else:
-            staff_list = []
+        staff_list = [{
+            "name": staff.staff.name,
+            "image": staff.staff.proflie_image,
+            "position": staff.position.name
+        }for staff in movie_staff if movie_staff.exists()]
 
-        sub_image = []
-        if movie_sub_image.exists():
-            sub_image = [{
-                "url": image.url
-            }for image in movie_sub_image]
-        else:
-            sub_image = []
+        sub_image = [{"url": image.url}for image in movie_sub_image if movie_sub_image.exists()]
 
         feedback = {
                 "id"          : movie.pk,
