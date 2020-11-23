@@ -19,24 +19,31 @@ class Picture(models.Model):
     class Meta:
         db_table = 'pictures'
 
-class Actor(models.Model):
+class Staff(models.Model):
     name           = models.CharField(max_length=200)
     proflie_image  = models.URLField(max_length=1000)
-    movies         = models.ManyToManyField('Movie', through='MovieActor')
+    movie          = models.ManyToManyField('Movie', through='MovieStaffPosition')
 
     class Meta:
-        db_table = 'actors'
+        db_table = 'staff'
 
-class MovieActor(models.Model):
-    movie = models.ForeignKey('Movie', on_delete=models.CASCADE)
-    actor = models.ForeignKey('Actor', on_delete=models.CASCADE)
+class Position(models.Model):
+    name           = models.CharField(max_length=200)
 
     class Meta:
-        db_table = 'movie_actors'
+        db_table = 'positions'
+
+class MovieStaffPosition(models.Model):
+    movie     = models.ForeignKey('Movie', on_delete=models.CASCADE)
+    staff     = models.ForeignKey('Staff', on_delete=models.CASCADE)
+    position  = models.ForeignKey('Position', on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'movie_staff_positions'
 
 class Genre(models.Model):
-    name   = models.CharField(max_length=200)
-    movies = models.ManyToManyField('Movie', through='MovieGenre')
+    name = models.CharField(max_length=200)
+    movie = models.ManyToManyField('Movie', through='MovieGenre')
 
     class Meta:
         db_table = 'genres'
@@ -46,4 +53,4 @@ class MovieGenre(models.Model):
     genre = models.ForeignKey('Genre', on_delete=models.CASCADE)
 
     class Meta:
-        db_table = 'movie_genres'
+        db_table = 'movie_genre'
