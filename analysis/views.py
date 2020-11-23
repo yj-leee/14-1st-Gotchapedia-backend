@@ -6,17 +6,18 @@ from django.http  import JsonResponse
 from .models      import Star
 from users.models import User
 from movie.models import Movie
+from users.utils  import login_decorator
 
 
 class StarView(View):
-#    <-- login decorator -->
-    def post(self, request, movieId):
+    @login_decorator
+    def post(self, request, movie_id):
         data = json.loads(request.body)
 
         try:
             star_check = Star.objects.filter(
-                user_id = request.user,
-                movie_id = movieId
+                user_id  = request.user,
+                movie_id = movie_id
             )
 
             if star_check.exists():
@@ -27,7 +28,7 @@ class StarView(View):
 
             star = Star.objects.create(
                 user_id  = request.user,
-                movie_id = movieId,
+                movie_id = movie_id,
                 point    = data["starPoint"]
             )
 
@@ -39,11 +40,11 @@ class StarView(View):
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
 
-    def get(self, request, movieId):
-
+    @login_decorator
+    def get(self, request, movie_id):
         star = Star.objects.filter(
             user_id  = request.user,
-            movie_id = movieId
+            movie_id = movie_id
         )
 
         if star.exists():
@@ -57,14 +58,14 @@ class StarView(View):
         }
         return JsonResponse(feedback, status=200)
 
-#    <-- login decorator -->
-    def patch(self, request, movieId):
+    @login_decorator
+    def patch(self, request, movie_id):
         data = json.loads(request.body)
 
         try:
             star = Star.objects.filter(
                 user_id  = request.user,
-                movie_id = movieId
+                movie_id = movie_id
             )
 
             if not star.exists():
@@ -85,12 +86,12 @@ class StarView(View):
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
 
-#    <-- login decorator -->
-    def delete(self, request, movieId):
+    @login_decorator
+    def delete(self, request, movie_id):
 
         star = Star.objects.filter(
             user_id  = request.user,
-            movie_id = movieId
+            movie_id = movie_id
         )
 
         if star.exists():
