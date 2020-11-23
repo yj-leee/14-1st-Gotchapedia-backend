@@ -11,13 +11,13 @@ from users.utils  import login_decorator
 
 class StarView(View):
     @login_decorator
-    def post(self, request, movie_id):
+    def post(self, request):
         data = json.loads(request.body)
 
         try:
             star_check = Star.objects.filter(
                 user_id  = request.user,
-                movie_id = movie_id
+                movie_id = data["movieId"]
             )
 
             if star_check.exists():
@@ -28,7 +28,7 @@ class StarView(View):
 
             star = Star.objects.create(
                 user_id  = request.user,
-                movie_id = movie_id,
+                movie_id = data["movieId"],
                 point    = data["starPoint"]
             )
 
