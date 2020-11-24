@@ -37,6 +37,7 @@ class InterestView(View):
 
         context = {}
         if Interest.objects.filter(user_id=request.user, movie_id=movie_id).exists():
+            interest = Interest.objects.get(user_id=request.user, movie_id=movie_id)
             context = {
                 'id': interest.id,
                 'status': interest.status
@@ -51,13 +52,14 @@ class InterestView(View):
             return JsonResponse({'message' : 'KEY_ERROR'}, status=400)
 
         if not Movie.objects.filter(id = movie_id).exists():
-            return JsonResponse({"message": "NO_MOVIE"}, status=400)
+            return JsonResponse({'message': 'NO_MOVIE'}, status=400)
 
         if not Interest.objects.filter(user_id=request.user, movie_id=movie_id).exists():
-            return JsonResponse({"message": "NO_INTEREST"}, status=400)
+            return JsonResponse({'message': 'NO_INTEREST'}, status=400)
 
-        interest = Interest.objects.update(user_id=request.user, movie_id=movie_id, status=data["status"])
-
+        interest = Interest.objects.get(user_id=request.user, movie_id=movie_id)
+        interest.status = data['status']
+        interest.save()
         context = {
             'id': interest.id,
             'status': interest.status
@@ -68,34 +70,32 @@ class InterestView(View):
     def delete(self, request, movie_id):
 
         if not Movie.objects.filter(id = movie_id).exists():
-            return JsonResponse({"message": "NO_MOVIE"}, status=400)
+            return JsonResponse({'message': 'NO_MOVIE'}, status=400)
 
-        if Interest.objects.filter(user_id=request.user, movie_id=movie_id).exists():
-            Interest.objects.delete(user_id=request.user, movie_id=movie_id)
-            return JsonResponse("SUCCESS", status=204)
+        interest = Interest.objects.filter(user_id=request.user, movie_id=movie_id)
+        interest.delete()
 
-        return JsonResponse("SUCCESS", status=204)
-    
+        return JsonResponse({'message': 'SUCCESS'}, status=204)
 
 class InterestListView(View):
     @login_decorator
     def get(self, request):
         account_id = request.user
         status = request.GET.get('status')
-        
-        data = {}
-        if status:
-            interests = Interest.objects.select_related('movie').prefetch_related('movie__star_set').filter(user_id=account_id,status=category).all()
 
-            data = {
-                'data': [{
-                    'movieId': interest.movie.id,
-                    'imageURL': interest.movie.main_image,
-                    'title': interest.movie.name,
-                    'rate': str(round(sum([star.point for star in interest.movie.star_set.all()])/interest.movie.star_set.all().count(),1)),
-                    'date': f'{interest.movie.opening_at.year} . {interest.movie.country}'
-                    } for interest in interests]
-            }
-            return JsonResponse(data, status=200)
-        
-        return JsonResponse(data, status=204)
+        interests = Interest.objects.select_related('movie').prefetch_related('movie__star_set').filter(user_id=account_id)
+
+        if status:
+            interests = interests.filter(status=status)
+
+        data = {
+            'data': [{
+                'movieId': interest.movie.id,
+                'imageURL': interest.movie.main_image,
+                'title': interest.movie.name,
+                'rate': str(round(sum([star.point for star in interest.movie.star_set.all()])/interest.movie.star_set.all().count(),1)),
+                'date': f'{interest.movie.opening_at.year} . {interest.movie.country}'
+                } for interest in interests]
+        }
+        return JsonResponse(data, status=200)
+
