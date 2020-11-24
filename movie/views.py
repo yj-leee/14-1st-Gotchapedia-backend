@@ -64,4 +64,5 @@ class MovieInfoView(View):
             "subImage"    :[{"url": image.url
                             }for image in movie_info.picture_set.all()]
         }
+
         return JsonResponse({"data":feedback}, status=200)
