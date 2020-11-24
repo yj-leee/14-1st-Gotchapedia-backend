@@ -1,3 +1,8 @@
 from django.urls import path
 
-urlpatterns= []
+from .views import MoviesUserView
+
+urlpatterns = [
+    path('/movies/user', MoviesUserView.as_view()),
+]
+
