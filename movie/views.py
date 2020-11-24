@@ -3,7 +3,6 @@ import requests
 
 from django.views    import View
 from django.http     import JsonResponse
-
 from .models         import (
     Movie,
     Picture,
@@ -12,7 +11,6 @@ from .models         import (
     Genre,
     MovieGenre
 )
-from .models         import Staff
 from users.models    import User
 from analysis.models import Star
 from users.utils     import login_decorator
@@ -20,33 +18,17 @@ from users.utils     import login_decorator
 
 class SearchView(View):
     def get(self, request):
-        search_key = request.GET.get('searchkey',None)
-        if Movie.objects.filter(name__icontains=search_key).exists():
-            moviequeryset = Movie.objects.filter(name__icontains=search_key)
-            movielist = []
-            for movie in moviequeryset:
-               movielist.append({
-                    'name'     : movie.name,
-                    'image'    : movie.main_image,
-                    'country'  : movie.country,
-                    'year'     : movie.opening_at
-               })
-            return JsonResponse({'result': movielist}, status=200)
+        search_key = request.GET.get('searchkey', None)
+        queryset = MovieStaffPosition.objects.filter(Q(staff__name__icontains=search_key) | Q(movie__name__icontains=search_key))
 
-        elif Staff.objects.filter(name__icontains=search_key).exists():
-            moviequeryset = Staff.objects.filter(name__icontains=search_key)
-            movielist = []
-            for moviequery in moviequeryset:
-                for movie in moviequery.movie.all():
-                    movielist.append({
-                        'name'     : movie.name,
-                        'country'  : movie.country,
-                        'year'     : movie.opening_at
-                    })
-            return JsonResponse({'result' : movielist}, status=200)
-        else:
-            return JsonResponse({'result' : None}, status=400)
-          
+        movielist = [{
+            'name'     : movie.movie.name,
+            'image'    : movie.movie.main_image,
+            'country'  : movie.movie.country,
+            'year'     : movie.movie.opening_at
+        } for movie in queryset ]
+
+        return JsonResponse({ 'result' : movielist }, status=200)
 
 class MoviesUserView(View):
     def get(self, request):
@@ -70,8 +52,8 @@ class MoviesUserView(View):
             return JsonResponse(context, status=200)
         except ValueError:
             return JsonResponse({'message': 'INSTANCE_IS_NOT_NUMBER'}, status=400)
-
-
+          
+          
 class MovieInfoView(View):
     @login_decorator
     def get(self, request, movie_id):
@@ -97,5 +79,27 @@ class MovieInfoView(View):
             "subImage"    :[{"url": image.url
                             }for image in movie_info.picture_set.all()]
         }
+
+
+
+        return JsonResponse({"data":feedback}, status=200)
+
+      
+class MovieDetailView(View):
+    @login_decorator
+    def get(self, request, movie_id):
+
+        movie_info = Movie.objects.prefetch_related('moviegenre_set').get(id=movie_id)
+
+        feedback = {
+                "name"        : movie_info.name,
+                "country"     : movie_info.country,
+                "description" : movie_info.description,
+                "openDate"    : movie_info.opening_at.year,
+                "showTime"    : movie_info.show_time,
+                "genre"       : [{"name": genre.genre.name
+                                 }for genre in movie_info.moviegenre_set.select_related('genre')]
+        }
+
 
         return JsonResponse({"data":feedback}, status=200)
