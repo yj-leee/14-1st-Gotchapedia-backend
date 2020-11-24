@@ -2,7 +2,7 @@ from django.db import models
 
 class Comment(models.Model):
     user     = models.ForeignKey('users.User', on_delete=models.CASCADE)
-    movie    = models.ForeignKey('movie.Movie', on_delete=models.CASCADE)
+    movie    = models.ForeignKey('movie.Movie', on_delete=models.CASCADE, null=True)
     comment  = models.ForeignKey(
         'Comment',
         on_delete    = models.CASCADE,
