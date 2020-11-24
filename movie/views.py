@@ -5,34 +5,22 @@ from django.http  import JsonResponse
 
 from .models      import Movie, Genre, MovieGenre
 from users.models import User
-
+from users.utils  import login_decorator
 
 class MovieDetailView(View):
-    #<-- login decorator -->
-    def get(self, request, movieId):
+    @login_decorator
+    def get(self, request, movie_id):
 
-        movie_info       = Movie.objects.filter(id=movieId)
-        movie_genre      = MovieGenre.objects.filter(movie_id=movieId)
-
-        if movie_info.exists():
-            movie =  movie_info.first()
-        else:
-            return JsonResponse({"message":"NO_MOVIE"}, status=404)
-
-        genre_list = []
-        if movie_genre.exists():
-            genre_list = [{
-                "name": genre.genre.name
-            } for genre in movie_genre]
-        else:
-            genre_list = []
+        movie_info = Movie.objects.prefetch_related('moviegenre_set').get(id=movie_id)
 
         feedback = {
-                "name"        : movie.name,
-                "country"      : movie.country,
-                "description" : movie.description,
-                "openDate"    : movie.opening_at.year,
-                "showTime"    : movie.show_time,
-                "genre"       : genre_list,
+                "name"        : movie_info.name,
+                "country"     : movie_info.country,
+                "description" : movie_info.description,
+                "openDate"    : movie_info.opening_at.year,
+                "showTime"    : movie_info.show_time,
+                "genre"       : [{"name": genre.genre.name
+                                 }for genre in movie_info.moviegenre_set.select_related('genre')]
         }
+
         return JsonResponse({"data":feedback}, status=200)
