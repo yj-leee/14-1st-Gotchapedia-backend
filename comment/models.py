@@ -8,6 +8,8 @@ class Comment(models.Model):
         on_delete    = models.CASCADE,
         related_name = 'main_comment'
     )
+    content = models.TextField(null=True)
+
     class Meta:
         db_table = 'comments'
 
