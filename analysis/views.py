@@ -15,8 +15,8 @@ from .models import Star
 class StarRatingView(View):
     @login_decorator
     def get(self, request):
-        if request.GET.get('id', None) != None:
-            movie_id       = request.GET.get('id', None)
+        movie_id = request.GET.get('movie_id', None)
+        if movie_id:
             moviequeryset  = Star.objects.filter(movie_id=movie_id)
 
             rating = {}
@@ -25,7 +25,7 @@ class StarRatingView(View):
             return JsonResponse({'movie':rating}, status=200)
 
         else:
-            user_id       = request.user
+            user_id       = request.user.id
             userqueryset  = Star.objects.filter(user_id=user_id)
 
             rating = {}
