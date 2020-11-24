@@ -1,8 +1,8 @@
 import json
+import requests
 
-from django.views import View
-from django.http  import JsonResponse
-
+from django.views    import View
+from django.http     import JsonResponse
 from .models         import (
     Movie,
     Picture,
@@ -13,7 +13,22 @@ from .models         import (
 )
 from users.models    import User
 from analysis.models import Star
-from users.utils  import login_decorator
+from users.utils     import login_decorator
+
+
+class SearchView(View):
+    def get(self, request):
+        search_key = request.GET.get('searchkey', None)
+        queryset = MovieStaffPosition.objects.filter(Q(staff__name__icontains=search_key) | Q(movie__name__icontains=search_key))
+
+        movielist = [{
+            'name'     : movie.movie.name,
+            'image'    : movie.movie.main_image,
+            'country'  : movie.movie.country,
+            'year'     : movie.movie.opening_at
+        } for movie in queryset ]
+
+        return JsonResponse({ 'result' : movielist }, status=200)
 
 class MoviesUserView(View):
     def get(self, request):
@@ -65,6 +80,8 @@ class MovieInfoView(View):
                             }for image in movie_info.picture_set.all()]
         }
 
+
+
         return JsonResponse({"data":feedback}, status=200)
 
       
@@ -83,5 +100,6 @@ class MovieDetailView(View):
                 "genre"       : [{"name": genre.genre.name
                                  }for genre in movie_info.moviegenre_set.select_related('genre')]
         }
+
 
         return JsonResponse({"data":feedback}, status=200)
