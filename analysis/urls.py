@@ -1,6 +1,8 @@
 from django.urls import path
-from analysis.views import StarRatingView
+from analysis.views import StarRatingView, StarView, StarDetailView
 
-urlpatterns = [
+urlpatterns= [
+    path('/star/', StarView.as_view()),
+    path('/star/<int:movie_id>', StarDetailView.as_view()),
     path("/my_star", StarRatingView.as_view()),
 ]
