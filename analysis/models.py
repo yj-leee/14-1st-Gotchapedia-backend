@@ -10,11 +10,10 @@ class Star(models.Model):
     class Meta:
         db_table = 'stars'
 
-class UserLog(models.Model):
+class Interest(models.Model):
+    status      = models.CharField(max_length=200)
     user        = models.ForeignKey('users.User', on_delete=models.CASCADE)
     movie       = models.ForeignKey('movie.Movie', on_delete=models.CASCADE)
-    created_at  = models.DateField(auto_now_add=True)
 
     class Meta:
-        db_table = 'user_logs'
-
+        db_table = 'interests'
