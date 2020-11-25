@@ -199,7 +199,8 @@ class CommentLikeView(View):
             "message": "SUCCESS"
         }
         return JsonResponse (feedback, status=204)
-      class ReplyListView(View):
+ 
+class ReplyListView(View):
     @login_decorator
     def get(self, request, comment_id):
 
