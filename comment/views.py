@@ -1,14 +1,15 @@
 import json
+from operator         import itemgetter
 
-from django.views    import View
-from django.http     import JsonResponse
+from django.views     import View
+from django.http      import JsonResponse
 from django.db.models import Count
 
-from .models         import Comment, Like
-from movie.models    import Movie
-from users.models    import User
-from analysis.models import Star
-from users.utils     import login_decorator
+from .models          import Comment, Like
+from movie.models     import Movie
+from users.models     import User
+from analysis.models  import Star
+from users.utils      import login_decorator
 
 
 class CommentListView(View):
@@ -30,4 +31,6 @@ class CommentListView(View):
             "replyCount" : comment.main_comment.count()-1,
         } for comment in comments if comment.id == comment.comment_id]
 
-        return JsonResponse({"data": comment_list}, status=200)
+        ordered_list = sorted(comment_list, key=itemgetter("likeCount"), reverse=True)
+
+        return JsonResponse({"data": ordered_list}, status=200)
