@@ -236,10 +236,6 @@ class ReplyListView(View):
 
 class ReplyView(View):
     @login_decorator
-    def get(self, request, reply_id):
-        pass
-
-    @login_decorator
     def patch(self, request, reply_id):
         data = json.loads(request.body)
 
