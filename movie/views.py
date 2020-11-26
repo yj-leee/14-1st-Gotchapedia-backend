@@ -50,6 +50,29 @@ class MoviesUserView(View):
             return JsonResponse({'message': 'INSTANCE_IS_NOT_NUMBER'}, status=400)
 
 
+class InterestListView(View):
+    @login_decorator
+    def get(self, request):
+        account_id = request.user
+        status = request.GET.get('status')
+
+        interests = Interest.objects.select_related('movie').prefetch_related('movie__star_set').filter(user_id=account_id)
+
+        if status:
+            interests = interests.filter(status=status)
+
+        data = {
+            'data': [{
+                'movieId': interest.movie.id,
+                'imageURL': interest.movie.main_image,
+                'title': interest.movie.name,
+                'rate': str(round(sum([star.point for star in interest.movie.star_set.all()])/max(interest.movie.star_set.all().count(),1))),
+                'date': f'{interest.movie.opening_at.year} . {interest.movie.country}'
+                } for interest in interests]
+        }
+        return JsonResponse(data, status=200)
+
+
 class MovieInfoView(View):
     @login_decorator
     def get(self, request, movie_id):
@@ -75,9 +98,6 @@ class MovieInfoView(View):
             "subImage"    :[{"url": image.url
                             }for image in movie_info.picture_set.all()]
         }
-
-
-
         return JsonResponse({"data":feedback}, status=200)
 
 
@@ -96,32 +116,7 @@ class MovieDetailView(View):
                 "genre"       : [{"name": genre.genre.name
                                  }for genre in movie_info.moviegenre_set.select_related('genre')]
         }
-
-
         return JsonResponse({"data":feedback}, status=200)
-
-
-class InterestListView(View):
-    @login_decorator
-    def get(self, request):
-        account_id = request.user
-        status = request.GET.get('status')
-
-        interests = Interest.objects.select_related('movie').prefetch_related('movie__star_set').filter(user_id=account_id)
-
-        if status:
-            interests = interests.filter(status=status)
-
-        data = {
-            'data': [{
-                'movieId': interest.movie.id,
-                'imageURL': interest.movie.main_image,
-                'title': interest.movie.name,
-                'rate': str(round(sum([star.point for star in interest.movie.star_set.all()])/max(interest.movie.star_set.all().count(),1))),
-                'date': f'{interest.movie.opening_at.year} . {interest.movie.country}'
-                } for interest in interests]
-        }
-        return JsonResponse(data, status=200)
 
 
 class InterestView(View):
@@ -194,6 +189,31 @@ class InterestView(View):
 
         return JsonResponse({'message': 'SUCCESS'}, status=204)
 
+
+class CommentListView(View):
+    @login_decorator
+    def get(self, request, movie_id):
+
+        comments = Comment.objects.select_related(
+            'user').prefetch_related('user__star_set',
+                                     'like_set',
+                                     'main_comment').filter(movie_id=movie_id)
+
+        comment_list = [{
+            "id"         : comment.id,
+            "userName"   : comment.user.name,
+            "userImage"  : comment.user.profile_image,
+            "starPoint"  : comment.user.star_set.get(movie_id=movie_id).point,
+            "content"    : comment.content,
+            "likeCount"  : comment.like_set.count(),
+            "replyCount" : comment.main_comment.count()-1,
+        } for comment in comments if comment.id == comment.comment_id]
+
+        ordered_list = sorted(comment_list, key=itemgetter("likeCount"), reverse=True)
+
+        return JsonResponse({"data": ordered_list}, status=200)
+
+
 class CommentView(View):
     @login_decorator
     def post(self, request):
@@ -237,7 +257,6 @@ class CommentView(View):
 
         except KeyError:
             return Jsonresponse({"message": "KEY_ERROR"}, status=400)
-
 
     @login_decorator
     def get(self, request, comment_id):
@@ -294,30 +313,6 @@ class CommentView(View):
             "message": "SUCCESS"
         }
         return JsonResponse(feedback, status=204)
-
-
-class CommentListView(View):
-    @login_decorator
-    def get(self, request, movie_id):
-
-        comments = Comment.objects.select_related(
-            'user').prefetch_related('user__star_set',
-                                     'like_set',
-                                     'main_comment').filter(movie_id=movie_id)
-
-        comment_list = [{
-            "id"         : comment.id,
-            "userName"   : comment.user.name,
-            "userImage"  : comment.user.profile_image,
-            "starPoint"  : comment.user.star_set.get(movie_id=movie_id).point,
-            "content"    : comment.content,
-            "likeCount"  : comment.like_set.count(),
-            "replyCount" : comment.main_comment.count()-1,
-        } for comment in comments if comment.id == comment.comment_id]
-
-        ordered_list = sorted(comment_list, key=itemgetter("likeCount"), reverse=True)
-
-        return JsonResponse({"data": ordered_list}, status=200)
 
 
 class CommentLikeView(View):

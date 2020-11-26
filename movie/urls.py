@@ -8,24 +8,22 @@ from .views      import (
     InterestView,
     InterestListView,
     ReplyView,
-    ReplyListView,
     CommentView,
     CommentListView,
     CommentLikeView
 )
 
 urlpatterns= [
-    path('/user', MoviesUserView.as_view()),
     path('', SearchView.as_view()),
+    path('/user', MoviesUserView.as_view()),
+    path('/interests', InterestListView.as_view()),
     path('/<int:movie_id>', MovieInfoView.as_view()),
     path('/<int:movie_id>/detail', MovieDetailView.as_view()),
     path('/<int:movie_id>/interest', InterestView.as_view()),
-    path('/interests', InterestListView.as_view()),
-    path('', CommentView.as_view()),
-    path('/<int:movie_id>', CommentView.as_view()),
-    path('/list/<int:movie_id>', CommentListView.as_view()),
-    path('/like', CommentLikeView.as_view()),
-    path('/like/<int:comment_id>', CommentLikeView.as_view()),
-    path('/<int:comment_id>/reply', ReplyListView.as_view()),
-    path('/reply/<int:reply_id>', ReplyView.as_view())
+    path('/<int:movie_id>/comments', CommentListView.as_view()),
+    path('/<int:movie_id>/comment', CommentView.as_view()),
+    path('/<int:movie_id>/comment/<int:comment_id>', CommentView.as_view()),
+    path('/comment/like', CommentLikeView.as_view()),
+    path('/comment/<int:comment_id>/like', CommentLikeView.as_view()),
+    path('/comment/<int:comment_id>/reply/<int:reply_id>', ReplyView.as_view())
 ]
