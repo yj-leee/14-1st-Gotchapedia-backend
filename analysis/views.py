@@ -41,6 +41,7 @@ class FavoriteView(View):
         }
         return JsonResponse(context, status=200)
 
+
 class StarRatingView(View):
     @login_decorator
     def get(self, request):
@@ -76,7 +77,7 @@ class StarView(View):
             if star_check.exists():
                 return JsonResponse({"message":"ALREADY_EXISTS"}, status=400)
 
-            if float(data["starPoint"])*2 %1 != 0 or float(data["starPoint")] == 0:
+            if float(data["starPoint"])*2 %1 != 0 or float(data["starPoint"]) == 0:
                 return JsonResponse({"message":"VALUE_ERROR"}, status=400)
 
             star = Star.objects.create(
