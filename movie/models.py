@@ -2,7 +2,7 @@ from django.db import models
 
 class Movie(models.Model):
     name         = models.CharField(max_length=200)
-    country       = models.CharField(max_length=200)
+    country      = models.CharField(max_length=200)
     main_image   = models.URLField(max_length=1000)
     description  = models.TextField(null=True)
     opening_at   = models.DateField()
@@ -53,3 +53,25 @@ class MovieGenre(models.Model):
 
     class Meta:
         db_table = 'movie_genre'
+
+class Comment(models.Model):
+    user     = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    movie    = models.ForeignKey('Movie', on_delete=models.CASCADE, null=True)
+    comment  = models.ForeignKey(
+        'Comment',
+        on_delete    = models.CASCADE,
+        related_name = 'main_comment',
+        null         = True
+    )
+    content = models.TextField(null=True)
+
+    class Meta:
+        db_table = 'comments'
+
+class Like(models.Model):
+    user     = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    comment  = models.ForeignKey('Comment', on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'likes'
+
