@@ -1,8 +1,8 @@
 import json
 from operator         import itemgetter
 
-from django.views    import View
-from django.http     import JsonResponse
+from django.views     import View
+from django.http      import JsonResponse
 from django.db.models import Count
 
 from .models          import Comment, Like
@@ -15,7 +15,7 @@ class CommentView(View):
     @login_decorator
     def post(self, request):
         data = json.loads(request.body)
-       
+
         try:
             movie_check = Movie.objects.filter(id = data["movieId"])
             star_check  = Star.objects.filter(
@@ -47,21 +47,21 @@ class CommentView(View):
             comment.save()
 
             feedback = {
+                "id"      : comment.id,
                 "content" : comment.content
             }
-            return jsonresponse({"message": "KEY_ERROR"}, status=400)
+            return JsonResponse({"message": feedback}, status=200)
+
+        except KeyError:
+            return Jsonresponse({"message": "KEY_ERROR"}, status=400)
+
 
     @login_decorator
-    def get(self, request, movie_id):
-        movie_check = Movie.objects.filter(id=movie_id)
+    def get(self, request, comment_id):
+        check_comment = Comment.objects.filter(id=comment_id)
 
-        if not movie_check.exists():
-            return JsonResponse({"message": "NO_MOVIE"}, status=400)
-
-        check_comment = Comment.objects.filter(
-            user_id  = request.user.id,
-            movie_id = movie_id
-        )
+        if not check_comment.exists():
+            return JsonResponse({"message": "NO_COMMENT"}, status=400)
 
         comment  = ''
         if check_comment.exists():
@@ -76,27 +76,19 @@ class CommentView(View):
         return JsonResponse(feedback, status=200)
 
     @login_decorator
-    def patch(self, request, movie_id):
+    def patch(self, request, comment_id):
         data = json.loads(request.body)
 
         try:
-            movie_check = Movie.objects.filter(id=movie_id)
+            check_comment = Comment.objects.filter(id=comment_id)
 
-            if not movie_check.exists():
-                return JsonResponse({"message": "NO_MOVIE"}, status=400)
+            if not check_comment.exists():
+                return JsonResponse({"message": "NO_COMMENT"}, status=400)
 
-            comment = Comment.objects.filter(
-                user_id  = request.user.id,
-                movie_id = movie_id
-            )
-
-            if comment.exists():
-                comment         = comment.first()
-                comment.content = data["content"]
-                comment.save()
-                update_comment  = comment.content
-            else:
-                return JsonResponse({"message": "NOT_FOUND"}, status=404)
+            comment         = check_comment.first()
+            comment.content = data["content"]
+            comment.save()
+            update_comment  = comment.content
 
             feedback = {
                 "content"    : update_comment
@@ -107,29 +99,20 @@ class CommentView(View):
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
 
     @login_decorator
-    def delete(self, request, movie_id):
-        movie_check = Movie.objects.filter(id=movie_id)
+    def delete(self, request, comment_id):
+        check_comment = Comment.objects.filter(id=comment_id)
 
-        comment = Comment.objects.filter(
-            user_id  = request.user.id,
-            movie_id = movie_id
-        )
+        if not check_comment.exists():
+            return JsonResponse({"message": "NO_COMMENT"}, status=404)
 
-        if not movie_check.exists():
-            return JsonResponse({"message": "NO_MOVIE"}, status=400)
-
-        if not comment.exists():
-            return JsonResponse({"message": "NOT_FOUND"}, status=404)
-
-        comment.delete()
+        check_comment.delete()
 
         feedback = {
             "message": "SUCCESS"
         }
-        
         return JsonResponse(feedback, status=204)
-      
-  
+
+
 class CommentListView(View):
     @login_decorator
     def get(self, request, movie_id):
@@ -153,7 +136,7 @@ class CommentListView(View):
 
         return JsonResponse({"data": ordered_list}, status=200)
 
-      
+
 class CommentLikeView(View):
     @login_decorator
     def post(self, request):
@@ -199,7 +182,8 @@ class CommentLikeView(View):
             "message": "SUCCESS"
         }
         return JsonResponse (feedback, status=204)
- 
+
+
 class ReplyListView(View):
     @login_decorator
     def get(self, request, comment_id):
@@ -233,6 +217,7 @@ class ReplyListView(View):
             'content': reply.content
         }
         return JsonResponse(context, status=201)
+
 
 class ReplyView(View):
     @login_decorator
