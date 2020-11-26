@@ -38,11 +38,11 @@ class MoviesUserView(View):
 
             context = {
                 'data': [{
-                    'movieId': star.movie.id,
-                    'imageURL': star.movie.main_image,
-                    'title': star.movie.name,
-                    'rate': star.point,
-                    'date': f'{star.movie.opening_at.year} . {star.movie.country}'
+                    'movieId'  : star.movie.id,
+                    'imageURL' : star.movie.main_image,
+                    'title'    : star.movie.name,
+                    'rate'     : star.point,
+                    'date'     : f'{star.movie.opening_at.year} . {star.movie.country}'
                  } for star in stars]
             }
             return JsonResponse(context, status=200)
@@ -63,11 +63,11 @@ class InterestListView(View):
 
         data = {
             'data': [{
-                'movieId': interest.movie.id,
-                'imageURL': interest.movie.main_image,
-                'title': interest.movie.name,
-                'rate': str(round(sum([star.point for star in interest.movie.star_set.all()])/max(interest.movie.star_set.all().count(),1))),
-                'date': f'{interest.movie.opening_at.year} . {interest.movie.country}'
+                'movieId'  : interest.movie.id,
+                'imageURL' : interest.movie.main_image,
+                'title'    : interest.movie.name,
+                'rate'     : str(round(sum([star.point for star in interest.movie.star_set.all()])/max(interest.movie.star_set.all().count(),1))),
+                'date'     : f'{interest.movie.opening_at.year} . {interest.movie.country}'
                 } for interest in interests]
         }
         return JsonResponse(data, status=200)
@@ -136,8 +136,8 @@ class InterestView(View):
         interest = Interest.objects.create(user_id=request.user, movie_id=movie_id, status=data["status"])
 
         context = {
-            'id': interest.id,
-            'status': interest.status
+            'id'     : interest.id,
+            'status' : interest.status
         }
         return JsonResponse(context, status=201)
 
@@ -151,8 +151,8 @@ class InterestView(View):
         if Interest.objects.filter(user_id=request.user, movie_id=movie_id).exists():
             interest = Interest.objects.get(user_id=request.user, movie_id=movie_id)
             context = {
-                'id': interest.id,
-                'status': interest.status
+                'id'     : interest.id,
+                'status' : interest.status
             }
         return JsonResponse(context, status=200)
 
@@ -207,6 +207,12 @@ class CommentListView(View):
             "content"    : comment.content,
             "likeCount"  : comment.like_set.count(),
             "replyCount" : comment.main_comment.count()-1,
+            "replyList"  : [{"replyId"        : reply.id,
+                             "replyUserName"  : reply.user.name,
+                             "replyUserImage" : reply.user.profile_image,
+                             "replyContent"   : reply.content,
+                             "replyLikeCount" : reply.like_set.count()
+                            } for reply in comment.main_comment.all() if reply.id != reply.comment_id]
         } for comment in comments if comment.id == comment.comment_id]
 
         ordered_list = sorted(comment_list, key=itemgetter("likeCount"), reverse=True)
@@ -364,6 +370,24 @@ class CommentLikeView(View):
 
 class ReplyView(View):
     @login_decorator
+    def post(self, request, comment_id):
+        data = json.loads(request.body)
+
+        if 'content' not in data.keys():
+            return JsonResponse({'message': 'KEY_ERROR'}, status=400)
+
+        if not Comment.objects.filter(id=comment_id).exists():
+            return JsonResponse({'message': 'NO_COMMENT'}, status=400)
+
+        reply = Comment.objects.create(user_id=request.user.id,comment_id=comment_id, content=data['content'])
+
+        context = {
+            'id'      : reply.id,
+            'content' : reply.content
+        }
+        return JsonResponse(context, status=201)
+
+    @login_decorator
     def patch(self, request, reply_id):
         data = json.loads(request.body)
 
@@ -378,11 +402,11 @@ class ReplyView(View):
         reply.save()
 
         context = {
-            "id": reply.id,
-            "userName": request.user.name,
-            "userImage": request.user.profile_image,
-            "content": reply.content,
-            "likeCount": reply.like_set.count(),
+            "id"        : reply.id,
+            "userName"  : request.user.name,
+            "userImage" : request.user.profile_image,
+            "content"   : reply.content,
+            "likeCount" : reply.like_set.count(),
         }
         return JsonResponse(context, status=200)
 
