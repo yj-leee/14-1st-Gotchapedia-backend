@@ -42,8 +42,7 @@ INSTALLED_APPS = [
     'users',
     'movie',
     'analysis',
-    'comment',
-	'corsheaders',
+	'corsheaders'
 ]
 
 MIDDLEWARE = [
