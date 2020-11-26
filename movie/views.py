@@ -1,12 +1,13 @@
 import json
 import requests
 
-from django.views import View
-from django.http  import JsonResponse
+from django.views    import View
+from django.http     import JsonResponse
 
 from .models         import Movie, MovieStaffPosition
 from analysis.models import Star, Interest
 from users.utils     import login_decorator
+
 
 class SearchView(View):
     def get(self, request):
@@ -21,6 +22,7 @@ class SearchView(View):
         } for movie in queryset ]
 
         return JsonResponse({ 'result' : movielist }, status=200)
+
 
 class MoviesUserView(View):
     def get(self, request):
@@ -44,8 +46,8 @@ class MoviesUserView(View):
             return JsonResponse(context, status=200)
         except ValueError:
             return JsonResponse({'message': 'INSTANCE_IS_NOT_NUMBER'}, status=400)
-          
-          
+
+
 class MovieInfoView(View):
     @login_decorator
     def get(self, request, movie_id):
@@ -76,7 +78,7 @@ class MovieInfoView(View):
 
         return JsonResponse({"data":feedback}, status=200)
 
-      
+
 class MovieDetailView(View):
     @login_decorator
     def get(self, request, movie_id):
@@ -96,6 +98,7 @@ class MovieDetailView(View):
 
         return JsonResponse({"data":feedback}, status=200)
 
+
 class InterestListView(View):
     @login_decorator
     def get(self, request):
@@ -112,11 +115,12 @@ class InterestListView(View):
                 'movieId': interest.movie.id,
                 'imageURL': interest.movie.main_image,
                 'title': interest.movie.name,
-                'rate': str(round(sum([star.point for star in interest.movie.star_set.all()])/interest.movie.star_set.all().count(),1)),
+                'rate': str(round(sum([star.point for star in interest.movie.star_set.all()])/max(interest.movie.star_set.all().count(),1))),
                 'date': f'{interest.movie.opening_at.year} . {interest.movie.country}'
                 } for interest in interests]
         }
         return JsonResponse(data, status=200)
+
 
 class InterestView(View):
     @login_decorator
@@ -139,7 +143,7 @@ class InterestView(View):
             'status': interest.status
         }
         return JsonResponse(context, status=201)
-    
+
     @login_decorator
     def get(self, request, movie_id):
 
@@ -154,7 +158,7 @@ class InterestView(View):
                 'status': interest.status
             }
         return JsonResponse(context, status=200)
-    
+
     @login_decorator
     def patch(self, request, movie_id):
         data = json.loads(request.body)
