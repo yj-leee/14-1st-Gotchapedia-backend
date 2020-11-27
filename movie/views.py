@@ -108,6 +108,7 @@ class MovieDetailView(View):
         movie_info = Movie.objects.prefetch_related('moviegenre_set').get(id=movie_id)
 
         feedback = {
+                "id"          : movie_info.id,
                 "name"        : movie_info.name,
                 "country"     : movie_info.country,
                 "description" : movie_info.description,
