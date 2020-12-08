@@ -1,5 +1,4 @@
 # Gotchapedia
-<img src='public/images/gotchapediaPink.png' alt='logo'>
 
 우리는 가짜피디아가 아닙니다. 왓챠피디아 클론을 통해 성장의 기쁨을 깨닫고, 코딩의 즐거움을 알게하는 **Gotcha**피디아를 만듭니다.
 <br><br>
