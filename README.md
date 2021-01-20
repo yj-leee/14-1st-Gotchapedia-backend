@@ -33,11 +33,12 @@
 
 ## 개인 역할
 `고수희`
-- Database Modeling 
+- Database Modeling
+- 특정 영화에 대한 댓글 리스트 조회 Restful API로 구현
 - 별점 CRUD Restful API로 구현  
 - 댓글 CRUD Restuful API로 구현
 - 댓글-좋아요 CRUD Restful API로 구현 
-- 영화 상세 정보 endpoint Restful API로 구현
+- 영화 상세 정보 조회 Restful API로 구현
 
 `고은정`
 - 메인페이지, 유저 마이페이지: Slick slider 이용 이미지 carousel 구현
