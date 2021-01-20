@@ -63,7 +63,23 @@ class StarRatingView(View):
                 rating[star] = userqueryset.filter(point=star).count()
             return JsonResponse({'user':rating}, status=200)
 
+
 class StarView(View):
+    """
+    특정 영화에 대한 별점 평가 생성
+
+    Author: 고수희
+
+    History: 2020-11-19(고수희) : 초기 생성
+             2020-11-20(고수희) : 1차 수정 - 로직 수정
+             2020-11-21(고수희) : 2차 수정 - 데코레이터 적용
+             2020-11-23(고수희) : 3차 수정 - view 분리
+             2021-01-20(고수희) : 4차 수정 - 변수 명 수정, 주석 추가
+
+    Returns: 생성된 별점 점수
+
+    """
+
     @login_decorator
     def post(self, request):
         data = json.loads(request.body)
@@ -74,11 +90,13 @@ class StarView(View):
                 movie_id = data["movieId"]
             )
 
+            # 평가한 별점이 이미 있는 경우
             if star_check.exists():
-                return JsonResponse({"message":"ALREADY_EXISTS"}, status=400)
+                return JsonResponse({"message": "ALREADY_EXISTS"}, status=400)
 
-            if float(data["starPoint"])*2 %1 != 0 or float(data["starPoint"]) == 0:
-                return JsonResponse({"message":"VALUE_ERROR"}, status=400)
+            # 평가 별점이 0.5 단위가 아닐 경우
+            if float(data["starPoint"])*2%1 != 0 or float(data["starPoint"] == 0):
+                return JsonResponse({"message": "VALUE_ERROR"}, status=400)
 
             star = Star.objects.create(
                 user_id  = request.user,
@@ -86,16 +104,28 @@ class StarView(View):
                 point    = data["starPoint"]
             )
 
-            feedback = {
-                "starPoint"    : star.point
-            }
-            return JsonResponse(feedback, status=201)
+            return JsonResponse({"starPoint": star.point}, status=201)
 
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
 
 
 class StarDetailView(View):
+    """
+    영화 별점 정보 조회
+
+    Author: 고수희
+
+    History: 2020-11-19(고수희) : 초기 생성
+             2020-11-20(고수희) : 1차 수정 - 로직 수정
+             2020-11-21(고수희) : 2차 수정 - 데코레이터 적용
+             2020-11-23(고수희) : 3차 수정 - view 분리
+             2021-01-20(고수희) : 4차 수정 - 변수 명 수정, 주석 추가
+
+    Returns: 유저가 평가한 별점 정보
+
+    """
+
     @login_decorator
     def get(self, request, movie_id):
         star = Star.objects.filter(
@@ -106,13 +136,27 @@ class StarDetailView(View):
         if star.exists():
             star       = star.first()
             star_point = star.point
+
+        # 평가한 별점이 없는 경우 0 점으로 반환
         else:
             return JsonResponse({"starPoint": 0}, status=404)
 
-        feedback = {
-            "starPoint" : star_point
-        }
-        return JsonResponse(feedback, status=200)
+        return JsonResponse({"starPoint": star_point}, status=200)
+
+    """
+    영화 별점 정보 수정
+
+    Author: 고수희
+
+    History: 2020-11-19(고수희) : 초기 생성
+             2020-11-20(고수희) : 1차 수정 - 로직 수정
+             2020-11-21(고수희) : 2차 수정 - 데코레이터 적용
+             2020-11-23(고수희) : 3차 수정 - view 분리
+             2021-01-20(고수희) : 4차 수정 - 변수 명 수정, 주석 추가
+
+    Returns: 유저가 수정 평가한 별점 정보
+
+    """
 
     @login_decorator
     def patch(self, request, movie_id):
@@ -124,23 +168,38 @@ class StarDetailView(View):
                 movie_id = movie_id
             )
 
+            # 수정할 별점이 없을 경우
             if not star.exists():
                 return JsonResponse({"message": "NOT_FOUND"}, status=404)
 
-            if float(data["starPoint"])*2 %1 != 0 or float(data["starPoint"]) == 0:
-                return JsonResponse({"message":"VALUE_ERROR"}, status=400)
+            # 평가 별점이 0.5 단위가 아닐 경우
+            if float(data["starPoint"])*2%1 != 0 or float(data["starPoint"] == 0):
+                return JsonResponse({"message": "VALUE_ERROR"}, status=400)
 
             star        = star.first()
             star.point  = data["starPoint"]
             star.save()
             update_star = star.point
-            feedback = {
-                "starPoint"    : update_star
-            }
-            return JsonResponse(feedback, status=200)
+
+            return JsonResponse({"starPoint": update_star}, status=200)
 
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
+
+    """
+    영화 별점 정보 삭
+
+    Author: 고수희
+
+    History: 2020-11-19(고수희) : 초기 생성
+             2020-11-20(고수희) : 1차 수정 - 로직 수정
+             2020-11-21(고수희) : 2차 수정 - 데코레이터 적용
+             2020-11-23(고수희) : 3차 수정 - view 분리
+             2021-01-20(고수희) : 4차 수정 - 변수 명 수정, 주석 추가
+
+    Returns: SUCCESS
+
+    """
 
     @login_decorator
     def delete(self, request, movie_id):
@@ -150,12 +209,10 @@ class StarDetailView(View):
             movie_id = movie_id
         )
 
-        if star.exists():
-            star.delete()
-        else:
+        # 삭제할 별점이 없을 경우
+        if not star.exists():
             return JsonResponse({"message": "NOT_FOUND"}, status=404)
 
-        feedback = {
-            "message": "SUCCESS"
-        }
-        return JsonResponse (feedback, status=204)
+        star.delete()
+
+        return JsonResponse({"message": "SUCCESS"}, status=204)
