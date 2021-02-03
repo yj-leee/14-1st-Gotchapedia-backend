@@ -187,7 +187,7 @@ class StarDetailView(View):
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
 
     """
-    영화 별점 정보 삭
+    영화 별점 정보 삭제
 
     Author: 고수희
 
